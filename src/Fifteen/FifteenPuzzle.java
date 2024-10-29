@@ -3,10 +3,15 @@ package Fifteen;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-// A classic 15-puzzle game implementation.
+/**
+ * A classic 15-puzzle game implementation
+ * The goal is to arrange the tiles in numerical order by sliding them into the empty space
+ */
 public class FifteenPuzzle extends JFrame {
     private static final int GRID_SIZE = 4;
     private static final int TILE_SIZE = 100;
@@ -15,11 +20,11 @@ public class FifteenPuzzle extends JFrame {
     private int emptyCol;
 
     public FifteenPuzzle() {
-        setTitle("Fifteen Puzzle");
+        setTitle("15 Puzzle");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        //Initialize game board
+        // Initialize game board
         JPanel boardPanel = new JPanel(new GridLayout(GRID_SIZE, GRID_SIZE));
         tiles = new JButton[GRID_SIZE][GRID_SIZE];
 
@@ -38,6 +43,7 @@ public class FifteenPuzzle extends JFrame {
                 boardPanel.add(tile);
             }
         }
+
         // Create New Game button
         JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(e -> startNewGame());
