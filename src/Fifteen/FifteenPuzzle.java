@@ -23,12 +23,13 @@ public class FifteenPuzzle extends JFrame {
     private HighScoreManager highScoreManager;
     private javax.swing.Timer timer;
 
+    // Constructor, sets up the main user interface
     public FifteenPuzzle() {
         highScoreManager = new HighScoreManager();
         setupUI();
         initializeGame();
     }
-
+    // Sets up the main game window UI
     private void setupUI() {
         setTitle("15 Puzzle Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,7 +69,7 @@ public class FifteenPuzzle extends JFrame {
         // Initialize timer
         timer = new Timer(1000, e -> updateTimer());
     }
-
+    // Initializes a new game
     private void initializeGame() {
         moves = 0;
         gameBoard = new GameBoard(4, 4); // Default 4x4
@@ -79,7 +80,7 @@ public class FifteenPuzzle extends JFrame {
         setLocationRelativeTo(null);
 
     }
-
+    // Starts a new game, shuffling the tiles
     private void startNewGame() {
         gameBoard.shuffleTiles();
         moves = 0;
@@ -87,7 +88,7 @@ public class FifteenPuzzle extends JFrame {
         startTime = Instant.now();
         timer.start();
     }
-
+    // Handles a tile click event
     private void handleTileClick(int row, int col) {
         if (gameBoard.moveTiles(row, col)) {
             moves++;
@@ -114,7 +115,7 @@ public class FifteenPuzzle extends JFrame {
             }
         }
     }
-
+    // Updates the timer label
     private void updateTimer() {
         timer = new javax.swing.Timer(1000, e -> updateTimer());
         Duration duration = Duration.between(startTime, Instant.now());
@@ -122,7 +123,7 @@ public class FifteenPuzzle extends JFrame {
                 duration.toMinutes(),
                 duration.toSecondsPart()));
     }
-
+    // Allows the user to change background and tile colours
     private void changeColors() {
         Color backgroundColor = JColorChooser.showDialog(
                 this, "Choose Background Color", gameBoard.getBackground());
@@ -136,7 +137,7 @@ public class FifteenPuzzle extends JFrame {
             gameBoard.setTileColor(tileColor);
         }
     }
-
+    // Allows the user to change the board size
     private void changeBoardSize(String sizeString) {
         int size = Integer.parseInt(sizeString.split("x")[0]);
         remove(gameBoard);
@@ -146,14 +147,14 @@ public class FifteenPuzzle extends JFrame {
         pack();
         startNewGame();
     }
-
+    // Allows the user to set their name
     private void setPlayer(String name) {
         if (!name.trim().isEmpty()) {
             currentPlayer = name.trim();
             JOptionPane.showMessageDialog(this, "Player set to: " + currentPlayer);
         }
     }
-
+    // Shows the high score list
     private void showHighScores() {
         StringBuilder sb = new StringBuilder("High Scores:\n\n");
         List<Score> scores = highScoreManager.getTopScores(10);
@@ -170,7 +171,7 @@ public class FifteenPuzzle extends JFrame {
 
         JOptionPane.showMessageDialog(this, sb.toString());
     }
-
+    // Main method, the starting point of executing the application
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new FifteenPuzzle().setVisible(true);

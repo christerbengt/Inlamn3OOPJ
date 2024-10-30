@@ -15,6 +15,7 @@ class GameBoard extends JPanel {
     private Color tileColor = new Color(200, 200, 255);
     private TileClickListener clickListener;
 
+    // Constructor, initializes the board
     public GameBoard(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
@@ -40,6 +41,7 @@ class GameBoard extends JPanel {
         }
     }
 
+    // Shuffles the tiles randomly
     public void shuffleTiles() {
         Random rand = new Random();
         int shuffles = rows * cols * 100;
@@ -67,6 +69,7 @@ class GameBoard extends JPanel {
         return moves;
     }
 
+    // Checks if tiles can be moved to the empty square
     public boolean moveTiles(int row, int col) {
         // Check if tiles are in line with empty tile
         if (row == emptyTile.x || col == emptyTile.y) {
@@ -99,6 +102,7 @@ class GameBoard extends JPanel {
         return false;
     }
 
+    // Shifts tiles on the board
     private void swapTiles(int row, int col) {
         tiles[emptyTile.x][emptyTile.y] = tiles[row][col];
         tiles[row][col] = null;
@@ -115,6 +119,7 @@ class GameBoard extends JPanel {
         repaint();
     }
 
+    // Checks if the game has been won
     public boolean isGameWon() {
         int value = 1;
         for (int i = 0; i < rows; i++) {
@@ -131,12 +136,14 @@ class GameBoard extends JPanel {
         return true;
     }
 
+    // Sets background colour of the board
     public void setBackgroundColor(Color color) {
         backgroundColor = color;
         setBackground(color);
         repaint();
     }
 
+    // Sets the colour of the tiles
     public void setTileColor(Color color) {
         tileColor = color;
         for (Tile[] row : tiles) {
@@ -148,14 +155,17 @@ class GameBoard extends JPanel {
         }
     }
 
+    // Gets current tile colour
     public Color getTileColor() {
         return tileColor;
     }
 
+    // Adds listener for tile click events
     public void addTileClickListener(TileClickListener listener) {
         this.clickListener = listener;
     }
 
+    // Handles tile click event
     private void handleTileClick(Tile tile) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {

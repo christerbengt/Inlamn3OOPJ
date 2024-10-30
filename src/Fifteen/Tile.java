@@ -6,6 +6,7 @@ import java.awt.*;
 class Tile extends JButton {
     private int value;
 
+    // Constructor, sets the tile value and appearance
     public Tile(int value) {
         this.value = value;
         setText(String.valueOf(value));
@@ -13,6 +14,7 @@ class Tile extends JButton {
         setFocusPainted(false);
     }
 
+    // Returns tile value
     public int getValue() {
         return value;
     }

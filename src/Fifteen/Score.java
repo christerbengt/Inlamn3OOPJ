@@ -8,6 +8,7 @@ class Score implements Serializable {
     int moves;
     long timeSeconds;
 
+    // Constructor, sets score details
     public Score(String playerName, int moves, long timeSeconds) {
         this.playerName = playerName;
         this.moves = moves;
