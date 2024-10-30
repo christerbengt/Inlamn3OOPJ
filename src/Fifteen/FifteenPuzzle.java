@@ -2,38 +2,71 @@ package Fifteen;
 
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import javax.swing.border.*;
 
-/**
- * A classic 15-puzzle game implementation
- * The goal is to arrange the tiles in numerical order by sliding them into the empty space
- */
 public class FifteenPuzzle extends JFrame {
-    private static final int GRID_SIZE = 4;
     private static final int TILE_SIZE = 100;
     private final JButton[][] tiles;
     private int emptyRow;
     private int emptyCol;
+    private final GameConfig config;
+    private final HighScoreManager highScoreManager;
+    private int moveCount;
+    private long startTime;
+    private boolean gameInProgress;
+    private JLabel statusLabel;
 
     public FifteenPuzzle() {
+        config = new GameConfig();
+        highScoreManager = new HighScoreManager();
+        tiles = new JButton[config.getRows()][config.getCols()];
+
+        setupMenu();
+        setupUI();
+        startNewGame();
+    }
+
+    private void setupMenu() {
+        JMenuBar menuBar = new JMenuBar();
+
+        // Game menu
+        JMenu gameMenu = new JMenu("Game");
+        JMenuItem newGame = new JMenuItem("New Game");
+        JMenuItem settings = new JMenuItem("Settings");
+        JMenuItem highScores = new JMenuItem("High Scores");
+
+        newGame.addActionListener(e -> startNewGame());
+        settings.addActionListener(e -> showSettingsDialog());
+        highScores.addActionListener(e -> showHighScores());
+
+        gameMenu.add(newGame);
+        gameMenu.add(settings);
+        gameMenu.add(highScores);
+        menuBar.add(gameMenu);
+
+        setJMenuBar(menuBar);
+    }
+
+    private void setupUI() {
         setTitle("15 Puzzle");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        // Initialize game board
-        JPanel boardPanel = new JPanel(new GridLayout(GRID_SIZE, GRID_SIZE));
-        tiles = new JButton[GRID_SIZE][GRID_SIZE];
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel boardPanel = new JPanel(new GridLayout(config.getRows(), config.getCols()));
 
-        // Create tiles and add action listeners
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
+        // Create tiles
+        for (int row = 0; row < config.getRows(); row++) {
+            for (int col = 0; col < config.getCols(); col++) {
                 JButton tile = new JButton();
                 tile.setFont(new Font("Arial", Font.BOLD, 24));
                 tile.setFocusPainted(false);
+                tile.setBackground(config.getTileColor());
 
                 final int currentRow = row;
                 final int currentCol = col;
@@ -44,85 +77,179 @@ public class FifteenPuzzle extends JFrame {
             }
         }
 
-        // Create New Game button
-        JButton newGameButton = new JButton("New Game");
-        newGameButton.addActionListener(e -> startNewGame());
+        // Status panel
+        statusLabel = new JLabel("Moves: 0 | Time: 0s");
+        statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        // Layout setup
-        setLayout(new BorderLayout());
-        add(boardPanel, BorderLayout.CENTER);
-        add(newGameButton, BorderLayout.SOUTH);
+        // Add components
+        mainPanel.add(boardPanel, BorderLayout.CENTER);
+        mainPanel.add(statusLabel, BorderLayout.SOUTH);
+        add(mainPanel);
 
-        // Set window size
-        setSize(GRID_SIZE * TILE_SIZE + 16, GRID_SIZE * TILE_SIZE + 62);
+        // Set size
+        pack();
         setLocationRelativeTo(null);
-
-        startNewGame();
     }
 
-    /**
-     * Starts a new game by shuffling the tiles
-     */
+    private void showSettingsDialog() {
+        JDialog dialog = new JDialog(this, "Settings", true);
+        dialog.setLayout(new GridLayout(0, 2, 5, 5));
+
+        // Grid size settings
+        dialog.add(new JLabel("Rows:"));
+        JSpinner rowSpinner = new JSpinner(new SpinnerNumberModel(config.getRows(), 2, 10, 1));
+        dialog.add(rowSpinner);
+
+        dialog.add(new JLabel("Columns:"));
+        JSpinner colSpinner = new JSpinner(new SpinnerNumberModel(config.getCols(), 2, 10, 1));
+        dialog.add(colSpinner);
+
+        // Color settings
+        dialog.add(new JLabel("Background Color:"));
+        JButton bgColorButton = new JButton("Choose");
+        bgColorButton.addActionListener(e -> {
+            Color newColor = JColorChooser.showDialog(dialog, "Choose Background Color",
+                    config.getBackgroundColor());
+            if (newColor != null) {
+                config.setBackgroundColor(newColor);
+            }
+        });
+        dialog.add(bgColorButton);
+
+        dialog.add(new JLabel("Tile Color:"));
+        JButton tileColorButton = new JButton("Choose");
+        tileColorButton.addActionListener(e -> {
+            Color newColor = JColorChooser.showDialog(dialog, "Choose Tile Color",
+                    config.getTileColor());
+            if (newColor != null) {
+                config.setTileColor(newColor);
+            }
+        });
+        dialog.add(tileColorButton);
+
+        // Player name
+        dialog.add(new JLabel("Player Name:"));
+        JTextField nameField = new JTextField(config.getPlayerName());
+        dialog.add(nameField);
+
+        // Save button
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            config.setRows((Integer) rowSpinner.getValue());
+            config.setCols((Integer) colSpinner.getValue());
+            config.setPlayerName(nameField.getText());
+
+            // Recreate the game board with new settings
+            dispose();
+            new FifteenPuzzle().setVisible(true);
+            dialog.dispose();
+        });
+        dialog.add(saveButton);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void showHighScores() {
+        JDialog dialog = new JDialog(this, "High Scores", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setLayout(new BoxLayout(scoresPanel, BoxLayout.Y_AXIS));
+
+        List<Player> highScores = highScoreManager.getHighScores();
+        for (Player player : highScores) {
+            scoresPanel.add(new JLabel(player.toString()));
+        }
+
+        dialog.add(new JScrollPane(scoresPanel), BorderLayout.CENTER);
+        dialog.setSize(300, 400);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     private void startNewGame() {
         List<Integer> numbers = new ArrayList<>();
-        for (int i = 1; i < GRID_SIZE * GRID_SIZE; i++) {
+        for (int i = 1; i < config.getRows() * config.getCols(); i++) {
             numbers.add(i);
         }
         Collections.shuffle(numbers);
 
         int index = 0;
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
-                if (row == GRID_SIZE - 1 && col == GRID_SIZE - 1) {
+        for (int row = 0; row < config.getRows(); row++) {
+            for (int col = 0; col < config.getCols(); col++) {
+                if (row == config.getRows() - 1 && col == config.getCols() - 1) {
                     tiles[row][col].setText("");
                     emptyRow = row;
                     emptyCol = col;
                 } else {
                     tiles[row][col].setText(String.valueOf(numbers.get(index++)));
                 }
+                tiles[row][col].setBackground(config.getTileColor());
             }
         }
+
+        moveCount = 0;
+        startTime = System.currentTimeMillis();
+        gameInProgress = true;
+        updateStatus();
+
+        // Start timer
+        Timer timer = new Timer(1000, e -> updateStatus());
+        timer.start();
     }
 
-    /**
-     * Handles tile clicks by checking if the move is valid and performing the move
-     */
     private void handleTileClick(int row, int col) {
-        // Check if clicked tile is adjacent to empty space
-        if (isAdjacent(row, col, emptyRow, emptyCol)) {
-            // Swap tiles
-            String temp = tiles[row][col].getText();
-            tiles[row][col].setText("");
-            tiles[emptyRow][emptyCol].setText(temp);
+        if (!gameInProgress) return;
 
-            // Update empty position
-            emptyRow = row;
-            emptyCol = col;
+        // Check if the clicked tile is in line with the empty space
+        if (row == emptyRow || col == emptyCol) {
+            // Calculate direction and number of tiles to move
+            int rowDir = Integer.compare(emptyRow, row);
+            int colDir = Integer.compare(emptyCol, col);
 
-            // Check if puzzle is solved
+            // Move all tiles between clicked position and empty space
+            while (row != emptyRow || col != emptyCol) {
+                int nextRow = emptyRow - rowDir;
+                int nextCol = emptyCol - colDir;
+
+                // Swap tiles
+                tiles[emptyRow][emptyCol].setText(tiles[nextRow][nextCol].getText());
+                tiles[nextRow][nextCol].setText("");
+
+                emptyRow = nextRow;
+                emptyCol = nextCol;
+            }
+
+            moveCount++;
+            updateStatus();
+
             if (isPuzzleSolved()) {
-                JOptionPane.showMessageDialog(this, "Grattis, du vann!");
+                gameInProgress = false;
+                long timeInSeconds = (System.currentTimeMillis() - startTime) / 1000;
+                Player player = new Player(config.getPlayerName(), moveCount, timeInSeconds);
+                highScoreManager.addScore(player);
+                JOptionPane.showMessageDialog(this,
+                        String.format("Grattis, du vann!\nMoves: %d\nTime: %d seconds",
+                                moveCount, timeInSeconds));
             }
         }
     }
 
-    /**
-     * Checks if two positions are adjacent
-     */
-    private boolean isAdjacent(int row1, int col1, int row2, int col2) {
-        return (Math.abs(row1 - row2) == 1 && col1 == col2) ||
-                (Math.abs(col1 - col2) == 1 && row1 == row2);
+    private void updateStatus() {
+        if (gameInProgress) {
+            long currentTime = (System.currentTimeMillis() - startTime) / 1000;
+            statusLabel.setText(String.format("Moves: %d | Time: %ds", moveCount, currentTime));
+        }
     }
 
-    /**
-     * Checks if the puzzle is solved by verifying that all tiles are in order
-     */
     private boolean isPuzzleSolved() {
         int expectedNumber = 1;
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
+        for (int row = 0; row < config.getRows(); row++) {
+            for (int col = 0; col < config.getCols(); col++) {
                 String tileText = tiles[row][col].getText();
-                if (row == GRID_SIZE - 1 && col == GRID_SIZE - 1) {
+                if (row == config.getRows() - 1 && col == config.getCols() - 1) {
                     return tileText.isEmpty();
                 }
                 if (tileText.isEmpty() || Integer.parseInt(tileText) != expectedNumber) {
