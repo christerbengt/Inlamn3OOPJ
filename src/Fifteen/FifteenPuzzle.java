@@ -39,6 +39,7 @@ public class FifteenPuzzle extends JFrame {
         controlPanel = new JPanel();
         JButton newGameButton = new JButton("New Game");
         JButton colorButton = new JButton("Change Colors");
+        JButton viewScoresButton = new JButton("View High Scores");
         timerLabel = new JLabel("Time: 0:00");
         movesLabel = new JLabel("Moves: 0");
 
@@ -58,6 +59,7 @@ public class FifteenPuzzle extends JFrame {
         controlPanel.add(setPlayerButton);
         controlPanel.add(timerLabel);
         controlPanel.add(movesLabel);
+        controlPanel.add(viewScoresButton);
 
         add(controlPanel, BorderLayout.NORTH);
 
@@ -66,6 +68,7 @@ public class FifteenPuzzle extends JFrame {
         colorButton.addActionListener(e -> changeColors());
         sizeSelector.addActionListener(e -> changeBoardSize(sizeSelector.getSelectedItem().toString()));
         setPlayerButton.addActionListener(e -> setPlayer());
+        viewScoresButton.addActionListener(e -> showHighScores());
 
         // Initialize timer
         timer = new Timer(1000, e -> updateTimer());
