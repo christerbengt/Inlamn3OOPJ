@@ -42,6 +42,7 @@ public class FifteenPuzzle extends JFrame {
         timerLabel = new JLabel("Time: 0:00");
         movesLabel = new JLabel("Moves: 0");
 
+
         // Size selection
         String[] sizes = {"3x3", "4x4", "5x5", "6x6"};
         JComboBox<String> sizeSelector = new JComboBox<>(sizes);
@@ -64,7 +65,7 @@ public class FifteenPuzzle extends JFrame {
         newGameButton.addActionListener(e -> startNewGame());
         colorButton.addActionListener(e -> changeColors());
         sizeSelector.addActionListener(e -> changeBoardSize(sizeSelector.getSelectedItem().toString()));
-        setPlayerButton.addActionListener(e -> setPlayer(playerNameField.getText()));
+        setPlayerButton.addActionListener(e -> setPlayer());
 
         // Initialize timer
         timer = new Timer(1000, e -> updateTimer());
@@ -148,8 +149,9 @@ public class FifteenPuzzle extends JFrame {
         startNewGame();
     }
     // Allows the user to set their name
-    private void setPlayer(String name) {
-        if (!name.trim().isEmpty()) {
+    private void setPlayer() {
+        String name = JOptionPane.showInputDialog(this, "Enter your name:");
+        if (name != null && !name.trim().isEmpty()) {
             currentPlayer = name.trim();
             JOptionPane.showMessageDialog(this, "Player set to: " + currentPlayer);
         }

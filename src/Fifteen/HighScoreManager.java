@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class HighScoreManager {
-    private static final String SCORES_FILE = "highscores.ser";
+    private static final String SCORES_FILE = "highscores.txt";
     private List<Score> scores;
 
     // Constructor, loads high scores from a file
