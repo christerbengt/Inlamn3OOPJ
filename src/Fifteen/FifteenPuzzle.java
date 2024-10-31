@@ -24,4 +24,5 @@ public class FifteenPuzzle extends JFrame {
     public static void main(String[] args) {
         System.out.println();
     }
+    // Testar
 }
