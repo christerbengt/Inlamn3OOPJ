@@ -1,15 +1,11 @@
 package Fifteen;
 
-
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.io.*;
 
 // Main game window class
 public class FifteenPuzzle extends JFrame {

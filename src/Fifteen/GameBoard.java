@@ -54,7 +54,7 @@ class GameBoard extends JPanel {
     }
 
     // Finds all valid moves in a current position. Used during shuffling to ensure the puzzle is possible to solve.
-    // Inspired by claude.ai
+    // Inspired and helped by claude.ai
     private java.util.List<Point> getPossibleMoves() {
         java.util.List<Point> moves = new ArrayList<>();
         int[][] directions = {{-1,0}, {1,0}, {0,-1}, {0,1}};
