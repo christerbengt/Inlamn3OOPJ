@@ -55,7 +55,7 @@ public class FifteenPuzzle extends JFrame {
         controlPanel.add(newGameButton);
         controlPanel.add(colorButton);
         controlPanel.add(sizeSelector);
-        //controlPanel.add(playerNameField);
+        // controlPanel.add(playerNameField);
         controlPanel.add(setPlayerButton);
         controlPanel.add(timerLabel);
         controlPanel.add(movesLabel);
